@@ -6,7 +6,7 @@ using System.Windows.Forms;
 using System.IO;
 using Microsoft.VisualBasic;
 using Microsoft.Win32.SafeHandles;
-using System.Runtime.Remoting.Messaging;
+// System.Runtime.Remoting not supported on modern .NET; removed unused using
 
 
 namespace SSComm
