@@ -10,15 +10,25 @@ jobs:
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v4
-    - name: Add msbuild to PATH
-      uses: microsoft/setup-msbuild@v2
-    # Build the application
-    - name: Build with MSBuild
+    - name: Setup .NET 10 SDK
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 10.0.x
+    # Restore NuGet packages and publish a self-contained single-file exe
+    # (runs on Windows x64 without installing the .NET runtime)
+    - name: Publish with dotnet
       working-directory: software/PC
-      run: msbuild /p:Configuration=Release /p:Platform="Any CPU" /p:OutputPath=bin/Release /p:DeployOnBuild=true /p:PublishProfile=Properties\PublishProfiles\UnisolderApp.pubxml /p:PublishDir=bin/Release /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:publishUrl=bin/Release /p:VisualStudioVersion=16.0 /p:DeployDefaultTarget=WebPublish
+      run: >
+        dotnet publish UniSolder/UniSolder.csproj
+        -c Release -r win-x64 --self-contained true
+        -p:PublishSingleFile=true
+        -p:IncludeNativeLibrariesForSelfExtract=true
+        -p:EnableCompressionInSingleFile=true
+        -o publish
     # Archive the build
     - name: Archive build
       uses: actions/upload-artifact@v4
       with:
         name: Unisolder-WindowsApp
-        path: software/PC/UniSolder/bin/Release
+        path: software/PC/publish
+        if-no-files-found: error
